@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="300" height="300"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const CELL_SIZE = 100;
+        const GRID_SIZE = 3;
+        let currentPlayer = 'X';
+        let gameBoard = [
+            ['', '', ''],
+            ['', '', ''],
+            ['', '', '']
+        ];
+        function drawGrid() {
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            for (let i = 1; i < GRID_SIZE; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * CELL_SIZE, 0);
+                ctx.lineTo(i * CELL_SIZE, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * CELL_SIZE);
+                ctx.lineTo(canvas.width, i * CELL_SIZE);
+                ctx.stroke();
+            }
+        }
+        function drawX(x, y) {
+            ctx.strokeStyle = 'blue';
+            ctx.lineWidth = 5;
+            const padding = 20;
+            ctx.beginPath();
+            ctx.moveTo(x * CELL_SIZE + padding, y * CELL_SIZE + padding);
+            ctx.lineTo((x + 1) * CELL_SIZE - padding, (y + 1) * CELL_SIZE - padding);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo((x + 1) * CELL_SIZE - padding, y * CELL_SIZE + padding);
+            ctx.lineTo(x * CELL_SIZE + padding, (y + 1) * CELL_SIZE - padding);
+            ctx.stroke();
+        }
+        function drawO(x, y) {
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 5;
+            const radius = CELL_SIZE / 2 - 20;
+            ctx.beginPath();
+            ctx.arc(x * CELL_SIZE + CELL_SIZE / 2, y * CELL_SIZE + CELL_SIZE / 2, radius, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+        function checkWin(player) {
+            // Check rows, columns, and diagonals
+            for (let i = 0; i < GRID_SIZE; i++) {
+                if (
+                    (gameBoard[i][0] === player && gameBoard[i][1] === player && gameBoard[i][2] === player) ||
+                    (gameBoard[0][i] === player && gameBoard[1][i] === player && gameBoard[2][i] === player)
+                ) {
+                    return true;
+                }
+            }
+            if (
+                (gameBoard[0][0] === player && gameBoard[1][1] === player && gameBoard[2][2] === player) ||
+                (gameBoard[0][2] === player && gameBoard[1][1] === player && gameBoard[2][0] === player)
+            ) {
+                return true;
+            }
+            return false;
+        }
+        function checkDraw() {
+            return gameBoard.every(row => row.every(cell => cell !== ''));
+        }
+        function handleClick(event) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((event.clientX - rect.left) / CELL_SIZE);
+            const y = Math.floor((event.clientY - rect.top) / CELL_SIZE);
+            if (gameBoard[y][x] === '') {
+                gameBoard[y][x] = currentPlayer;
+
+                if (currentPlayer === 'X') {
+                    drawX(x, y);
+                } else {
+                    drawO(x, y);
+                }
+
+                if (checkWin(currentPlayer)) {
+                    alert(`Player ${currentPlayer} wins!`);
+                    resetGame();
+                } else if (checkDraw()) {
+                    alert("It's a draw!");
+                    resetGame();
+                } else {
+                    currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                }
+            }
+        }
+        function resetGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            gameBoard = [
+                ['', '', ''],
+                ['', '', ''],
+                ['', '', '']
+            ];
+            currentPlayer = 'X';
+        }
+        canvas.addEventListener('click', handleClick);
+        drawGrid();
+    </script>
+</body>
+</html>
